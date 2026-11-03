@@ -1,3 +1,5 @@
+
+
 import pygame
 import random
 
@@ -51,6 +53,33 @@ def startscreen():
         pygame.quit()
             
 
+def UpperYchord(num):
+    uyp = 0
+    if num == 1:
+        uyp = 200
+    elif num == 2:
+        uyp = 150
+    elif num == 3:
+        uyp = 100
+    elif num == 4:
+        uyp = 50
+    
+    return uyp
+def lowerYchord(num):
+    Ypos = 0
+    if num == 1:
+        Ypos = 300
+    elif num == 2:
+        Ypos = 250
+    elif num == 3:
+        Ypos = 200
+    elif num == 4:
+        Ypos = 150
+    return Ypos
+
+
+
+
 
 def main():
     pygame.init()
@@ -58,17 +87,27 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Flappy Square")
     running = True
-    upperTube = []
-    lowerTube = []
+    font = pygame.font.SysFont(None, 36)
+    firstTube = pygame.Rect(700, 0, 60, 200)
+    secondTube = pygame.Rect(700, 300, 60, 300)
+    upper = [firstTube.copy()]
+    lower = [secondTube.copy()]
     colided = False
     addedpoints = False
+    readd = False
     velocitydown = 2
-    flapup = 50
-
-    flapper = pygame.Rect(100, 200, 30, 30)
+    tubevelocity = 2
+    flapup = 40
+    scorebox = pygame.Rect(0, 0, 120, 60)
+    score = 0
+    OScore = 0
+# x, y, width, height
+    flapper = pygame.Rect(100, 200, 10, 10)
+    
     clock = pygame.time.Clock()
 
     while running:
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -78,14 +117,66 @@ def main():
 
         screen.fill(BLACK)
         pygame.draw.rect(screen, RED, flapper)
-        flapper.y += velocitydown
+        pygame.draw.rect(screen, RED, scorebox)
 
+        ranum = random.randint(1, 4)
+
+        flapper.y += velocitydown
+        for tube in upper [:]:
+            tube.x -= tubevelocity
+            if tube.x < -60:
+                upper.remove(tube)    
+        if upper[-1].x <= 450:
+            newTube = pygame.Rect(700,0,60,UpperYchord(ranum))
+            upper.append(newTube)
+        for tube in upper:
+            pygame.draw.rect(screen, GREEN, tube)
+        
+        
+        for tube in lower [:]:
+            tube.x -= tubevelocity
+            if tube.x < -60:
+                lower.remove(tube)                  
+        if lower[-1].x <= 450:
+            newTube = pygame.Rect(700,lowerYchord(ranum),60,300)
+            lower.append(newTube)                   
+        for tube in lower:
+            pygame.draw.rect(screen, GREEN, tube)
+
+        
+        surfrace = font.render(f"Score: {score}",True,WHITE)
+        rect = surfrace.get_rect(center = scorebox.center)
+        screen.blit(surfrace,rect)
 
         if flapper.y < 0:
            flapper.y += 5
 
         if (flapper.y + 30) > HEIGHT:
             flapper.y -= 5
+        for tube in upper:
+            if tube.x == 18: 
+                    score += 1
+                
+        if score >= 20:
+            tubevelocity = 4
+        for tube in upper:
+            if flapper.colliderect(tube):
+                colided = True
+        for tube in lower:
+            if flapper.colliderect(tube):
+                colided = True
+
+        if colided:
+            velocitydown = 0
+            tubevelocity = 0
+            flapup = 0      
+
+
+            
+            
+
+        
+                
            
             
 
